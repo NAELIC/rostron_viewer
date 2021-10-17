@@ -1,6 +1,7 @@
 # VSCode
 .vscode/
 log/
+.qt_for_python/
 
 # Python
 
