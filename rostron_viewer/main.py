@@ -1,20 +1,30 @@
 import PySide6
 from PySide6.QtCore import QLine, Qt
 
-from .ros_handler import ROS2Thread
+from .ros_handler import ROS2Thread, SignalHandler
 
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from .mainwindow import Ui_MainWindow
 import sys
+from rostron_interfaces.msg import Field, Ball
 
 
 class Field(QWidget):
+
+    def field_callback(self, msg: Field):
+        print(f"Qwidget {msg.goal_depth}")
+
+    def ball_callback(self, msg: Ball):
+        print(f"Qwidget ball {msg.position.x}")
+
     def __init__(self,  parent=None) -> None:
         super().__init__(parent)
         self.show()
         self.ros_thread = ROS2Thread(parent=self)
         self.ros_thread.start()
+        SignalHandler().field.connect(self.field_callback)
+        SignalHandler().ball.connect(self.ball_callback)
 
     def paintEvent(self, event: PySide6.QtGui.QPaintEvent) -> None:
         print("called")
