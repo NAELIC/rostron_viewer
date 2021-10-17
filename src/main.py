@@ -1,8 +1,7 @@
-from typing import Optional
 import PySide6
 from PySide6.QtCore import QLine, Qt
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen
-from PySide6.QtWidgets import QApplication, QBoxLayout, QMainWindow, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from mainwindow import Ui_MainWindow
 import sys
 
@@ -26,12 +25,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.show()
         # self.field = Field(self)
-        self.test = Field(self.field)
-        # self.test.paintEvent()
+        self.field = Field(self.field_container)
         vlayout = QVBoxLayout()
-        vlayout.addWidget(self.test)
-        self.field.setLayout(vlayout)
-        print(self.field.layout())
+        vlayout.addWidget(self.field)
+        self.field_container.setLayout(vlayout)
         
 app = QApplication(sys.argv)
 w = MainWindow()
