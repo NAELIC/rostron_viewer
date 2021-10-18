@@ -23,13 +23,16 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setWindowModality(Qt.NonModal)
-        MainWindow.resize(1026, 755)
+        MainWindow.resize(1047, 765)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.horizontalLayout = QHBoxLayout(self.centralwidget)
+        self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.field_container = QWidget(self.centralwidget)
         self.field_container.setObjectName(u"field_container")
+        self.field_container.setEnabled(True)
         self.field_container.setLayoutDirection(Qt.LeftToRight)
         self.field_container.setStyleSheet(u"background-color: rgb(78, 154, 6);")
 

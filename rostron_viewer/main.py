@@ -1,5 +1,6 @@
+import os
 import PySide6
-from PySide6.QtCore import QLine, Qt
+from PySide6.QtCore import QLine, Qt, QUrl
 
 from .ros_handler import ROS2Thread, SignalHandler
 
@@ -8,6 +9,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from .mainwindow import Ui_MainWindow
 import sys
 from rostron_interfaces.msg import Field, Ball
+
+from PySide6.QtWebEngineWidgets import QWebEngineView
 
 
 class Field(QWidget):
@@ -41,11 +44,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
         self.show()
-        # self.field = Field(self)
-        self.field = Field(self.field_container)
+
+        self.web = QWebEngineView()
+        url = QUrl.fromLocalFile(os.path.join(
+            os.path.dirname(__file__), "index.html"))
+        self.web.load(url)
         vlayout = QVBoxLayout()
-        vlayout.addWidget(self.field)
+        vlayout.setSpacing(0)
+        vlayout.setContentsMargins(0, 0, 0, 0)
+        vlayout.addWidget(self.web)
         self.field_container.setLayout(vlayout)
+
 
 def main():
     app = QApplication(sys.argv)
