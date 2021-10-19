@@ -32,6 +32,8 @@ class ROSTron_handler(Node):
 
     def field_callback(self, msg: Field):
         if not(self.field == msg):
+            self._logger.info(f"Qwidget {msg.goal_depth}")
+
             SignalHandler().field.emit(msg)
             self.field = msg
 

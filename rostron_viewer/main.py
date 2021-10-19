@@ -1,17 +1,14 @@
-import os
-import PySide6
-from PySide6.QtCore import QLine, Qt, QUrl
-
-from .ros_handler import ROS2Thread, SignalHandler
-
-from PySide6.QtGui import QBrush, QColor, QPainter, QPen
-from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
-from .mainwindow import Ui_MainWindow
 import sys
-from rostron_interfaces.msg import Field, Ball
+import os
 
+from PySide6.QtCore import QUrl
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
+from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
+from rostron_interfaces.msg import Field, Ball
+from .ros_handler import ROS2Thread, SignalHandler
+from .backend import Backend
 
 class Field(QWidget):
 
@@ -29,34 +26,37 @@ class Field(QWidget):
         SignalHandler().field.connect(self.field_callback)
         SignalHandler().ball.connect(self.ball_callback)
 
-    def paintEvent(self, event: PySide6.QtGui.QPaintEvent) -> None:
-        print("called")
-        painter = QPainter(self)
-        painter.setPen(QPen(Qt.red, 15))
-        brush = QBrush(QColor(0, 0, 255, 255))
-        painter.setBrush(brush)
-        line = QLine(30, 30, 500, 30)
-        painter.drawLine(line)
+class MainWindow(QMainWindow):
+    def __init__(self) -> None:
+        super().__init__()
 
+        self.setWindowTitle('ROSTron Viewer')
 
-class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, *args, obj=None, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
-        self.setupUi(self)
-        self.show()
+        # Field
+        self.web = QWebEngineView(self)
+        self.channel = QWebChannel()
+        self.web.page().setWebChannel(self.channel)
+        self.backend = Backend()
+        self.channel.registerObject("backend", self.backend)
 
-        self.web = QWebEngineView()
         url = QUrl.fromLocalFile(os.path.join(
             os.path.dirname(__file__), "index.html"))
         self.web.load(url)
-        vlayout = QVBoxLayout()
-        vlayout.setSpacing(0)
-        vlayout.setContentsMargins(0, 0, 0, 0)
-        vlayout.addWidget(self.web)
-        self.field_container.setLayout(vlayout)
+        self.setCentralWidget(self.web)
+
+        # ROS2 Thread
+        self.ros_thread = ROS2Thread(parent=self)
+        self.ros_thread.start()
+
+        # Signal Handler
+
+        SignalHandler().field.connect(self.backend.set_field)
+
+        
 
 
 def main():
     app = QApplication(sys.argv)
     w = MainWindow()
+    w.showMaximized()
     app.exec()
