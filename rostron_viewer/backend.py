@@ -2,8 +2,6 @@ from PySide6.QtCore import QObject
 from PySide6.QtCore import Slot
 from rostron_interfaces.msg import Field, Ball
 
-from rosidl_runtime_py import convert
-
 class Backend(QObject):
 
     field = Field()
@@ -15,4 +13,4 @@ class Backend(QObject):
 
     @Slot(result=list)
     def get_field(self):
-        return (self.field.goal_depth, self.field.goal_width, self.field.width)
+        return (self.field.width, self.field.length, self.field.goal_depth, self.field.goal_width, self.field.penalty_width,  self.field.penalty_depth, self.field.boundary_width)
