@@ -58,7 +58,30 @@ function convert_list_to_field(field_list) {
 
 function draw_field(field) {
     ctx.strokeRect(-field.length / 2, -field.width / 2, field.length, field.width)
-    // ctx.strokeRect(0, 0, 150,150);
+}
+
+function draw_line_vertical(field) {
+    ctx.beginPath();
+    ctx.moveTo(0, field.width / 2);
+    ctx.lineTo(0, - field.width / 2);
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function draw_penalty(field) {
+    console.warn(field.penalty_width)
+    ctx.strokeRect((field.length / 2) - field.penalty_depth, -field.penalty_width / 2, field.penalty_depth, field.penalty_width );
+
+    // Right
+    ctx.strokeRect(- (field.length / 2), - field.penalty_width / 2, field.penalty_depth, field.penalty_width);
+
+}
+
+function draw_goal(field) {
+    ctx.strokeRect(field.length / 2, -field.goal_width / 2, field.goal_depth, field.goal_width);
+    // this.ctx.strokeStyle = rightColor;
+    ctx.strokeRect(-(field.length / 2) -field.goal_depth, - field.goal_width / 2, field.goal_depth, field.goal_width);
+
 }
 
 window.addEventListener("load", () => {
@@ -81,6 +104,9 @@ window.addEventListener("load", () => {
                 console.warn(field.length);
 
                 draw_field(field);
+                draw_line_vertical(field);
+                draw_penalty(field);
+                draw_goal(field);
             });
         }, 60)
     })
