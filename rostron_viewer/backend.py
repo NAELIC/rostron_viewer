@@ -5,13 +5,20 @@ from rostron_interfaces.msg import Field, Ball
 class Backend(QObject):
 
     field = Field()
+    ball = Ball()
 
     @Slot()
     def set_field(self, msg: Field) -> None:
-        print(f"Qwidget {msg.goal_depth}")
         self.field = msg
 
     @Slot(result=list)
     def get_field(self):
-        print(self.field.penalty_width)
         return (self.field.width, self.field.length, self.field.goal_depth, self.field.goal_width, self.field.penalty_width,  self.field.penalty_depth, self.field.boundary_width)
+
+    @Slot()
+    def set_ball(self, msg: Ball) -> None:
+        self.ball = msg
+    
+    @Slot(result=list)
+    def get_ball(self):
+        return (self.ball.position.x, self.ball.position.y)

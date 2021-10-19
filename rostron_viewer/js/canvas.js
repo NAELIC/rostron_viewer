@@ -39,8 +39,8 @@ function update_canvas() {
     }
 
     ctx.clearRect(0, 0, canvas_size.width, canvas_size.height);
-    ctx.scale(zoom_mult * 100, zoom_mult * 100);
-    ctx.translate(canvas_center.x, canvas_center.y);
+    ctx.scale(zoom_mult * 100, -zoom_mult * 100);
+    ctx.translate(canvas_center.x, -canvas_center.y);
 }
 
 
@@ -70,7 +70,7 @@ function draw_line_vertical(field) {
 
 function draw_penalty(field) {
     console.warn(field.penalty_width)
-    ctx.strokeRect((field.length / 2) - field.penalty_depth, -field.penalty_width / 2, field.penalty_depth, field.penalty_width );
+    ctx.strokeRect((field.length / 2) - field.penalty_depth, -field.penalty_width / 2, field.penalty_depth, field.penalty_width);
 
     // Right
     ctx.strokeRect(- (field.length / 2), - field.penalty_width / 2, field.penalty_depth, field.penalty_width);
@@ -80,8 +80,18 @@ function draw_penalty(field) {
 function draw_goal(field) {
     ctx.strokeRect(field.length / 2, -field.goal_width / 2, field.goal_depth, field.goal_width);
     // this.ctx.strokeStyle = rightColor;
-    ctx.strokeRect(-(field.length / 2) -field.goal_depth, - field.goal_width / 2, field.goal_depth, field.goal_width);
+    ctx.strokeRect(-(field.length / 2) - field.goal_depth, - field.goal_width / 2, field.goal_depth, field.goal_width);
 
+}
+
+function draw_ball(ball) {
+    ctx.beginPath();
+    ctx.strokeStyle = 'orange';
+    ctx.fillStyle = 'orange';
+    ctx.arc(ball[0], ball[1], 0.02, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.fill();
+    ctx.closePath();
 }
 
 window.addEventListener("load", () => {
@@ -92,21 +102,23 @@ window.addEventListener("load", () => {
 
         setInterval(() => {
             backend.get_field().then((field_list) => {
-                const field = convert_list_to_field(field_list);
+                backend.get_ball().then(ball => {
 
-                update_canvas();
 
-                // ctx.fillStyle = "#26a349";
-                // ctx.fillRect(-canvas.width, -canvas.height, canvas.width, canvas.height);
+                    const field = convert_list_to_field(field_list);
 
-                ctx.strokeStyle = "#fff";
-                ctx.lineWidth = field.boundary_width / 10;
-                console.warn(field.length);
+                    update_canvas();
 
-                draw_field(field);
-                draw_line_vertical(field);
-                draw_penalty(field);
-                draw_goal(field);
+                    ctx.strokeStyle = "#fff";
+                    ctx.lineWidth = field.boundary_width / 10;
+
+                    draw_field(field);
+                    draw_line_vertical(field);
+                    draw_penalty(field);
+                    draw_goal(field);
+
+                    draw_ball(ball);
+                })
             });
         }, 60)
     })

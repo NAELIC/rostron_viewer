@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
 
         # Signal Handler
         SignalHandler().field.connect(self.backend.set_field)
-
+        SignalHandler().ball.connect(self.backend.set_ball)
         
 
 
