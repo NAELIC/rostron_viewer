@@ -1,7 +1,7 @@
 import sys
 import os
 
-from PySide6.QtCore import QUrl
+from PySide6.QtCore import QUrl, Signal
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
         # Signal Handler
         SignalHandler().field.connect(self.backend.set_field)
         SignalHandler().ball.connect(self.backend.set_ball)
+        SignalHandler().yellow.connect(self.backend.set_yellow)
         
 
 

@@ -6,6 +6,7 @@ class Backend(QObject):
 
     field = Field()
     ball = Ball()
+    yellow = True
 
     @Slot()
     def set_field(self, msg: Field) -> None:
@@ -22,3 +23,11 @@ class Backend(QObject):
     @Slot(result=list)
     def get_ball(self):
         return (self.ball.position.x, self.ball.position.y)
+
+    @Slot()
+    def set_yellow(self, yellow):
+        self.yellow = yellow
+    
+    @Slot(result=bool)
+    def is_yellow(self):
+        return self.yellow

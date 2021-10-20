@@ -69,7 +69,6 @@ function draw_line_vertical(field) {
 }
 
 function draw_penalty(field) {
-    console.warn(field.penalty_width)
     ctx.strokeRect((field.length / 2) - field.penalty_depth, -field.penalty_width / 2, field.penalty_depth, field.penalty_width);
 
     // Right
