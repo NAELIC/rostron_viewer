@@ -78,20 +78,66 @@ function draw_penalty(field) {
 
 function draw_goal(field) {
     ctx.strokeRect(field.length / 2, -field.goal_width / 2, field.goal_depth, field.goal_width);
-    // this.ctx.strokeStyle = rightColor;
     ctx.strokeRect(-(field.length / 2) - field.goal_depth, - field.goal_width / 2, field.goal_depth, field.goal_width);
-
 }
 
 function draw_ball(ball) {
     ctx.beginPath();
     ctx.strokeStyle = 'orange';
     ctx.fillStyle = 'orange';
-    ctx.arc(ball[0], ball[1], 0.02, 0, 2 * Math.PI);
+    ctx.arc(ball.x, ball.y, 0.02, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.fill();
     ctx.closePath();
 }
+
+
+function draw_shape(robot) {
+    ctx.beginPath();
+    // ctx.fillStyle = robot.color;
+    ctx.arc(
+        robot.x,
+        -robot.y,
+        0.085,
+        -robot.orientation + 0.75,
+        -robot.orientation + Math.PI * 2 - 0.75
+    );
+    ctx.fill();
+    ctx.closePath();
+}
+
+function draw_text(robot) {
+    ctx.save();
+    ctx.translate(
+        robot.x,
+        -robot.y
+    );
+
+    // this.ctx.rotate();
+
+    ctx.fillStyle = 'black';
+    ctx.font = 'normal normal 0.009rem arial';
+    ctx.scale(1, -1);
+    ctx.fillText(robot.id, -0.085 / 2, 0.085 / 2);
+
+    ctx.restore();
+
+}
+
+function draw_robots(robots, yellow) {
+    ctx.fillStyle = yellow ? "#dbd81d" : "#249ed6"
+    robots.allies.forEach((robot) => {
+        draw_shape(robot);
+        draw_text(robot);
+    })
+
+    ctx.fillStyle = yellow ? "#249ed6" : "#dbd81d"
+    robots.opponents.forEach((robot) => {
+        draw_shape(robot);
+        draw_text(robot);
+    })
+}
+
 
 window.addEventListener("load", () => {
     var backend;
@@ -100,23 +146,25 @@ window.addEventListener("load", () => {
         backend = channel.objects.backend
 
         setInterval(() => {
-            backend.get_field().then((field_list) => {
+            backend.get_field().then((field) => {
                 backend.get_ball().then(ball => {
+                    backend.is_yellow().then((yellow) => {
+                        backend.get_robots().then(robots => {
+                            update_canvas();
 
+                            ctx.strokeStyle = "#fff";
+                            ctx.lineWidth = field.boundary_width / 10;
 
-                    const field = convert_list_to_field(field_list);
+                            draw_field(field);
+                            draw_line_vertical(field);
+                            draw_penalty(field);
+                            draw_goal(field);
 
-                    update_canvas();
+                            draw_ball(ball);
 
-                    ctx.strokeStyle = "#fff";
-                    ctx.lineWidth = field.boundary_width / 10;
-
-                    draw_field(field);
-                    draw_line_vertical(field);
-                    draw_penalty(field);
-                    draw_goal(field);
-
-                    draw_ball(ball);
+                            draw_robots(robots, yellow);
+                        })
+                    })
                 })
             });
         }, 60)

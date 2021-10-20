@@ -35,6 +35,8 @@ class MainWindow(QMainWindow):
         SignalHandler().field.connect(self.backend.set_field)
         SignalHandler().ball.connect(self.backend.set_ball)
         SignalHandler().yellow.connect(self.backend.set_yellow)
+        SignalHandler().allies.connect(self.backend.set_allies)
+        SignalHandler().opponents.connect(self.backend.set_opponents)
         
 
 

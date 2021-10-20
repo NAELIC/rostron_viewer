@@ -7,6 +7,7 @@ from rostron_interfaces.msg import Robots, Ball, Field
 from rostron_utils.decorators import singleton
 from rcl_interfaces.srv import GetParameters
 
+
 @singleton
 class SignalHandler(QObject):
     field = Signal(Field)
@@ -16,6 +17,7 @@ class SignalHandler(QObject):
     opponents = Signal(Robots)
 
     yellow = Signal(bool)
+
 
 class ROSTron_handler(Node):
 
@@ -30,6 +32,11 @@ class ROSTron_handler(Node):
             Field, 'field', self.field_callback, 10)
         self.ball_sub_ = self.create_subscription(
             Ball, 'ball', self.ball_callback, 10)
+
+        self.allies_sub = self.create_subscription(
+            Robots, 'allies', self.allies_callback, 10)
+        self.opponents_sub = self.create_subscription(
+            Robots, 'opponents', self.opponents_callback, 10)
 
         # Yellow parameter
         self.param = self.create_client(GetParameters, 'vision/get_parameters')
@@ -53,6 +60,14 @@ class ROSTron_handler(Node):
         if not(self.ball == msg):
             SignalHandler().ball.emit(msg)
             self.ball = msg
+
+    def allies_callback(self, msg: Robots):
+        self.allies = msg
+        SignalHandler().allies.emit(msg)
+
+    def opponents_callback(self, msg: Robots):
+        self.opponents = msg
+        SignalHandler().opponents.emit(msg)
 
 
 class ROS2Thread(QThread):
