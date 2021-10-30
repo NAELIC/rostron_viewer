@@ -1,9 +1,11 @@
+from typing_extensions import Annotated
 import rclpy
 from PySide6.QtCore import QObject, QThread, Signal
 
 from rclpy.node import Node
 
 from rostron_interfaces.msg import Robots, Ball, Field
+from rostron_interfaces.srv import AddAnnotation, DeleteAnnotation
 from rostron_utils.decorators import singleton
 from rcl_interfaces.srv import GetParameters
 
@@ -17,6 +19,10 @@ class SignalHandler(QObject):
     opponents = Signal(Robots)
 
     yellow = Signal(bool)
+
+    add_annotation = Signal(AddAnnotation.Request)
+    del_annotation = Signal(DeleteAnnotation.Request)
+
 
 
 class ROSTron_handler(Node):
@@ -39,6 +45,13 @@ class ROSTron_handler(Node):
             Robots, 'opponents', self.opponents_callback, 10)
 
         # Yellow parameter
+        self.find_yellow_parameter()
+        
+        # Annotations
+        self.srv_add_annot = self.create_service(AddAnnotation, 'add_annotation', self.add_annotation_callback)
+        self.srv_del_annot = self.create_service(DeleteAnnotation, 'del_annotation', self.del_annotation_callback)
+
+    def find_yellow_parameter(self):
         self.param = self.create_client(GetParameters, 'vision/get_parameters')
         while not self.param.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
@@ -60,6 +73,7 @@ class ROSTron_handler(Node):
         if not(self.ball == msg):
             SignalHandler().ball.emit(msg)
             self.ball = msg
+    
 
     def allies_callback(self, msg: Robots):
         self.allies = msg
@@ -68,6 +82,16 @@ class ROSTron_handler(Node):
     def opponents_callback(self, msg: Robots):
         self.opponents = msg
         SignalHandler().opponents.emit(msg)
+
+    def add_annotation_callback(self, request : AddAnnotation.Request, response : AddAnnotation.Response):
+        SignalHandler().add_annotation.emit(request)
+        response.result = True
+        return response
+
+    def del_annotation_callback(self, request : DeleteAnnotation.Request, response : DeleteAnnotation.Response):
+        SignalHandler().del_annotation.emit(request)
+        response.result = True
+        return response
 
 
 class ROS2Thread(QThread):
