@@ -94,7 +94,6 @@ function draw_ball(ball) {
 
 function draw_shape(robot) {
     ctx.beginPath();
-    // ctx.fillStyle = robot.color;
     ctx.arc(
         robot.x,
         -robot.y,
@@ -112,8 +111,6 @@ function draw_text(robot) {
         robot.x,
         -robot.y
     );
-
-    // this.ctx.rotate();
 
     ctx.fillStyle = 'black';
     ctx.font = 'normal normal 0.009rem arial';
@@ -138,6 +135,34 @@ function draw_robots(robots, yellow) {
     })
 }
 
+function add_annotation_point(point) {
+    let x = point.x
+    let y = point.y
+    let box_point = 0.05
+    
+    ctx.strokeStyle = point.color;
+    ctx.fillStyle = point.color;
+    ctx.lineWidth = 0.02;
+
+    ctx.beginPath();
+    ctx.moveTo(x - box_point, y - box_point);
+    ctx.lineTo(x + box_point, y + box_point);
+    ctx.moveTo(x - box_point, y + box_point);
+    ctx.lineTo(x + box_point, y - box_point);
+    ctx.stroke();
+}
+
+function add_annotations(type, params) {
+    switch (type) {
+        case 'point':
+            point = JSON.parse(params);
+            add_annotation_point(point);
+            break;
+        default:
+            console.warn('Error')
+    }
+}
+
 
 window.addEventListener("load", () => {
     var backend;
@@ -145,30 +170,32 @@ window.addEventListener("load", () => {
     new QWebChannel(qt.webChannelTransport, (channel) => {
         backend = channel.objects.backend
 
-        setInterval(() => {
-            backend.get_field().then((field) => {
-                backend.get_ball().then(ball => {
-                    backend.is_yellow().then((yellow) => {
-                        backend.get_robots().then(robots => {
-                            update_canvas();
+        setInterval(async () => {
+            field = await backend.get_field();
+            ball = await backend.get_ball();
+            yellow = await backend.is_yellow();
+            robots = await backend.get_robots();
+            annotations = await backend.get_annotations();
 
-                            ctx.strokeStyle = "#fff";
-                            ctx.lineWidth = field.boundary_width / 10;
+            update_canvas();
 
-                            draw_field(field);
-                            draw_line_vertical(field);
-                            draw_penalty(field);
-                            draw_goal(field);
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = field.boundary_width / 10;
 
-                            draw_ball(ball);
+            draw_field(field);
+            draw_line_vertical(field);
+            draw_penalty(field);
+            draw_goal(field);
 
-                            draw_robots(robots, yellow);
-                        })
-                    })
-                })
-            });
+            draw_ball(ball);
+
+            draw_robots(robots, yellow);
+
+            // console.warn(annotations);
+            for (id in annotations) {
+                add_annotations(annotations[id].type, annotations[id].params)
+            }
         }, 60)
     })
 })
-
 

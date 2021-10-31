@@ -1,13 +1,12 @@
-from typing_extensions import Annotated
 import rclpy
 from PySide6.QtCore import QObject, QThread, Signal
 
 from rclpy.node import Node
+from rcl_interfaces.srv import GetParameters
 
 from rostron_interfaces.msg import Robots, Ball, Field
 from rostron_interfaces.srv import AddAnnotation, DeleteAnnotation
 from rostron_utils.decorators import singleton
-from rcl_interfaces.srv import GetParameters
 
 
 @singleton
@@ -22,7 +21,6 @@ class SignalHandler(QObject):
 
     add_annotation = Signal(AddAnnotation.Request)
     del_annotation = Signal(DeleteAnnotation.Request)
-
 
 
 class ROSTron_handler(Node):
@@ -46,10 +44,12 @@ class ROSTron_handler(Node):
 
         # Yellow parameter
         self.find_yellow_parameter()
-        
+
         # Annotations
-        self.srv_add_annot = self.create_service(AddAnnotation, 'add_annotation', self.add_annotation_callback)
-        self.srv_del_annot = self.create_service(DeleteAnnotation, 'del_annotation', self.del_annotation_callback)
+        self.srv_add_annot = self.create_service(
+            AddAnnotation, 'add_annotation', self.add_annotation_callback)
+        self.srv_del_annot = self.create_service(
+            DeleteAnnotation, 'del_annotation', self.del_annotation_callback)
 
     def find_yellow_parameter(self):
         self.param = self.create_client(GetParameters, 'vision/get_parameters')
@@ -73,7 +73,6 @@ class ROSTron_handler(Node):
         if not(self.ball == msg):
             SignalHandler().ball.emit(msg)
             self.ball = msg
-    
 
     def allies_callback(self, msg: Robots):
         self.allies = msg
@@ -83,12 +82,12 @@ class ROSTron_handler(Node):
         self.opponents = msg
         SignalHandler().opponents.emit(msg)
 
-    def add_annotation_callback(self, request : AddAnnotation.Request, response : AddAnnotation.Response):
+    def add_annotation_callback(self, request: AddAnnotation.Request, response: AddAnnotation.Response):
         SignalHandler().add_annotation.emit(request)
         response.result = True
         return response
 
-    def del_annotation_callback(self, request : DeleteAnnotation.Request, response : DeleteAnnotation.Response):
+    def del_annotation_callback(self, request: DeleteAnnotation.Request, response: DeleteAnnotation.Response):
         SignalHandler().del_annotation.emit(request)
         response.result = True
         return response

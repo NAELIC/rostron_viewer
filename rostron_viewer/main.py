@@ -37,7 +37,9 @@ class MainWindow(QMainWindow):
         SignalHandler().yellow.connect(self.backend.set_yellow)
         SignalHandler().allies.connect(self.backend.set_allies)
         SignalHandler().opponents.connect(self.backend.set_opponents)
-        
+        SignalHandler().add_annotation.connect(self.backend.add_annotation)
+        SignalHandler().del_annotation.connect(self.backend.del_annotation)
+
 
 
 def main():

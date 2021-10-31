@@ -1,9 +1,7 @@
-from PySide6.QtCore import QJsonValue, QObject
+from PySide6.QtCore import QObject
 from PySide6.QtCore import Slot
 from rostron_interfaces.msg import Field, Ball, Robots
-
-# class Data():
-#     self.field = Field()
+from rostron_interfaces.srv import AddAnnotation, DeleteAnnotation
 
 
 class Backend(QObject):
@@ -13,6 +11,7 @@ class Backend(QObject):
     allies = Robots()
     opponents = Robots()
     yellow = True
+    annotations = {}
 
     @Slot()
     def set_field(self, msg: Field) -> None:
@@ -53,10 +52,23 @@ class Backend(QObject):
         for robot in self.allies.robots:
             if robot.active:
                 msg['allies'].append(
-                    { 'id' : robot.id, 'x': robot.pose.position.x, 'y': robot.pose.position.y, 'orientation': robot.pose.orientation.z})
-        
+                    {'id': robot.id, 'x': robot.pose.position.x, 'y': robot.pose.position.y, 'orientation': robot.pose.orientation.z})
+
         for robot in self.opponents.robots:
             if robot.active:
                 msg['opponents'].append(
-                    {'id' : robot.id, 'x': robot.pose.position.x, 'y': robot.pose.position.y, 'orientation': robot.pose.orientation.z})
+                    {'id': robot.id, 'x': robot.pose.position.x, 'y': robot.pose.position.y, 'orientation': robot.pose.orientation.z})
         return msg
+
+    @Slot()
+    def add_annotation(self, req: AddAnnotation.Request):
+        self.annotations[req.id] = {
+            'type': req.type, 'params': req.params}
+    
+    @Slot()
+    def del_annotation(self, req : DeleteAnnotation.Request):
+        self.annotations.pop(req.id)
+
+    @Slot(result='QVariant')
+    def get_annotations(self):
+        return self.annotations
