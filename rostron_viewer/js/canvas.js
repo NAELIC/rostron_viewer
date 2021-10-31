@@ -135,11 +135,24 @@ function draw_robots(robots, yellow) {
     })
 }
 
+function add_annotation_path(path, color) {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 0.02;
+
+    ctx.beginPath();
+    ctx.moveTo(path[0].x, path[0].y);
+    for (point of path) {
+        ctx.lineTo(point.x, point.y);
+    }
+    ctx.stroke();
+}
+
 function add_annotation_point(point) {
     let x = point.x
     let y = point.y
     let box_point = 0.05
-    
+
     ctx.strokeStyle = point.color;
     ctx.fillStyle = point.color;
     ctx.lineWidth = 0.02;
@@ -157,6 +170,10 @@ function add_annotations(type, params) {
         case 'point':
             point = JSON.parse(params);
             add_annotation_point(point);
+            break;
+        case 'path':
+            params_json = JSON.parse(params)
+            add_annotation_path(params_json.path, params_json.color)
             break;
         default:
             console.warn('Error')
@@ -191,9 +208,8 @@ window.addEventListener("load", () => {
 
             draw_robots(robots, yellow);
 
-            // console.warn(annotations);
-            for (id in annotations) {
-                add_annotations(annotations[id].type, annotations[id].params)
+            for (annotation of Object.values(annotations)) {
+                add_annotations(annotation.type, annotation.params)
             }
         }, 60)
     })
